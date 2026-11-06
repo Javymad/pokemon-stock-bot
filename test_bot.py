@@ -26,6 +26,13 @@ class Filtro(unittest.TestCase):
         self.assertEqual(len(bot.filtrar([item(precio=69.95)], CFG)), 0)  # reventa
         self.assertEqual(len(bot.filtrar([item(disp=False)], CFG)), 0)
 
+    def test_chino_solo_con_rebaja(self):
+        chino = "Caja Greninja EX Set 30th Celebration - Chino"
+        self.assertEqual(bot.filtrar([item(titulo=chino, precio=25.0)], CFG), {})
+        rebajado = bot.filtrar([{**item(titulo=chino, precio=25.0), "antes": 29.95}], CFG)
+        self.assertEqual(len(rebajado), 1)
+        self.assertIn("antes 29.95", bot.texto_aviso(next(iter(rebajado.values()))))
+
     def test_clasifica_tipos(self):
         casos = {"Minilatas Celebración 30 Aniversario": "Minilata", "Lata Sylveon ex 30 Aniversario": "Lata ex",
                  "Colección Greninja ex 30.º Aniversario": "Colección ex (Sylveon/Greninja)",
@@ -147,6 +154,11 @@ class Canales(unittest.TestCase):
         self.assertIn("tope 68.99", textos[0])
         self.assertEqual(bot.textos_canal("c", 1, caro, CFG), [])
         self.assertEqual(bot.textos_canal("c", 1, otra_serie, CFG), [])
+
+    def test_chino_en_canal_no_se_reenvia(self):
+        zh = self.aviso("30th Celebration", "ETB", "Otra", "50.00", "ETB").replace("[es]", "[zh]")
+        self.assertEqual(bot.textos_canal("c", 1, zh, CFG), [])
+        self.assertEqual(bot.textos_canal("c", 1, "Caja 30 Aniversario en chino", CFG), [])
 
     def test_varias_novedades_en_un_mensaje(self):
         uno = self.aviso("30th Celebration", "Mini Tin", "Carrefour", "16.99", "Mini Lata")

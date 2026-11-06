@@ -19,6 +19,11 @@ RE_COLECCION = re.compile(
     r"|celebracion\s+(del\s+)?30"
 )
 RE_RESERVA = re.compile(r"reserva|pre.?order")
+RE_CHINO = re.compile(r"\bchino\b|chinese|\bzh\b|\bcn\b")
+
+
+def es_chino(texto):
+    return bool(RE_CHINO.search(normalizar(texto)))
 
 
 def normalizar(texto):
@@ -61,11 +66,14 @@ def leer_shopify(tienda, cfg, get=http_get):
                 continue
             for v in p["variants"]:
                 sufijo = "" if v.get("title") in (None, "Default Title") else f" ({v['title']})"
+                precio = float(v["price"])
+                antes = float(v.get("compare_at_price") or 0)
                 items.append({
                     "id": f"{tienda['nombre']}|{v['id']}",
                     "tienda": tienda["nombre"],
                     "titulo": p["title"] + sufijo,
-                    "precio": float(v["price"]),
+                    "precio": precio,
+                    "antes": antes if antes > precio else None,
                     "disponible": bool(v.get("available")),
                     "stock_seguro": True,
                     "url": f"{base}/products/{p['handle']}",
@@ -151,6 +159,8 @@ def filtrar(items, cfg):
         c = clasificar(it["titulo"], cfg)
         if not it["disponible"] or c is None or it["precio"] > c[1]:
             continue
+        if es_chino(it["titulo"]) and not it.get("antes"):  # en chino solo si hay rebaja
+            continue
         regla, tope = c
         salida[it["id"]] = {**it, "producto": regla["producto"], "tope": tope,
                             "reserva": bool(RE_RESERVA.search(normalizar(it["titulo"])))}
@@ -162,6 +172,8 @@ def texto_aviso(it):
     cabecera = "🕓 RESERVA disponible" if it["reserva"] else "🟢 STOCK disponible"
     lineas = [f"<b>{cabecera}</b>", e(it["titulo"]),
               f"💶 {it['precio']:.2f} € (tope {it['tope']:.2f} €)", f"🏬 {e(it['tienda'])}"]
+    if it.get("antes"):
+        lineas.insert(3, f"🏷️ Rebajado, antes {it['antes']:.2f} €")
     if not it["stock_seguro"]:
         lineas.append("⚠️ Esta tienda no publica el stock: compruébalo en la ficha")
     lineas.append(f'<a href="{e(it["url"], quote=True)}">Abrir producto</a>')
@@ -261,10 +273,12 @@ def textos_canal(canal, ident, texto, cfg):
     cabecera = f"📣 <b>Aviso en @{html.escape(canal)}</b>"
     avisos = list(RE_AVISO.finditer(texto))
     if not avisos:
-        return [f"{cabecera} (precio y stock sin comprobar)\n{html.escape(texto[:900])}\n{enlace}"] if es_coleccion(texto) else []
+        if not es_coleccion(texto) or es_chino(texto):  # los canales no indican si hay rebaja
+            return []
+        return [f"{cabecera} (precio y stock sin comprobar)\n{html.escape(texto[:900])}\n{enlace}"]
     salida = []
     for a in avisos:
-        if not es_coleccion(f"{a['serie']} {a['titulo']}"):
+        if not es_coleccion(f"{a['serie']} {a['titulo']}") or es_chino(f"{a['idioma']} {a['titulo']}"):
             continue
         precio = float(a["precio"].replace(",", "."))
         clase = clasificar(f"{a['tipo']} {a['titulo']}", cfg)
