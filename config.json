@@ -1,0 +1,132 @@
+{
+  "_nota_pvp": "No hay PVP oficial publicado para España: 'pvp' son ESTIMACIONES editables. Tope de aviso = pvp * (1 + margen). Sirve para cualquier idioma. El orden importa: gana la primera regla que encaje.",
+  "margen": 0.15,
+  "fallos_para_avisar": 12,
+  "pausa_segundos": 1.5,
+  "max_paginas": 12,
+  "tiendas": [
+    {
+      "nombre": "Cardzone",
+      "base": "https://cardzone.es",
+      "coleccion": "pokemon-30-aniversario"
+    },
+    {
+      "nombre": "Metamorph Center",
+      "base": "https://metamorphcenter.com",
+      "coleccion": "30th-celebration"
+    },
+    {
+      "nombre": "Universe TCG",
+      "base": "https://www.universetcg.com",
+      "coleccion": "30th-celebration"
+    },
+    {
+      "nombre": "La Escotilla",
+      "base": "https://laescotillajuegos.com"
+    },
+    {
+      "nombre": "Tier Kards",
+      "base": "https://tierkards.com"
+    },
+    {
+      "nombre": "PcComponentes",
+      "tipo": "ldjson",
+      "url": "https://www.pccomponentes.com/buscar/?query=pokemon+tcg+30+aniversario",
+      "puede_vacio": true
+    },
+    {
+      "nombre": "MediaMarkt",
+      "tipo": "ldjson",
+      "url": "https://www.mediamarkt.es/es/search.html?query=pokemon+tcg+30+aniversario",
+      "puede_vacio": true
+    }
+  ],
+  "excluir": [
+    "protector",
+    "acrilic",
+    "danada",
+    "set completo",
+    "pack 27",
+    "promos",
+    "badge coin",
+    "sleeves",
+    "fundas"
+  ],
+  "reglas": [
+    {
+      "producto": "Ultra Premium",
+      "pvp": 130,
+      "patron": "ultra ?premium|ultrapremium|\\bupc\\b"
+    },
+    {
+      "producto": "Caja Entrenador Élite (ETB)",
+      "pvp": 60,
+      "patron": "\\betb\\b|entrenador (de )?elite|elite trainer"
+    },
+    {
+      "producto": "Booster Bundle",
+      "pvp": 30,
+      "patron": "bundle|lote de sobres"
+    },
+    {
+      "producto": "Colección Ditto",
+      "pvp": 60,
+      "patron": "ditto"
+    },
+    {
+      "producto": "Colección con álbum",
+      "pvp": 50,
+      "patron": "binder|album"
+    },
+    {
+      "producto": "Colección con póster",
+      "pvp": 30,
+      "patron": "poster"
+    },
+    {
+      "producto": "Colección con pegatinas",
+      "pvp": 15,
+      "patron": "sticker|pegatinas"
+    },
+    {
+      "producto": "Minilata",
+      "pvp": 10,
+      "patron": "mini ?lata|mini ?tin"
+    },
+    {
+      "producto": "Lata ex",
+      "pvp": 25,
+      "patron": "\\blata\\b|\\btin\\b"
+    },
+    {
+      "producto": "Blíster con moneda",
+      "pvp": 8,
+      "patron": "blister con moneda|coin blister"
+    },
+    {
+      "producto": "Blíster 2 sobres",
+      "pvp": 13,
+      "patron": "blister"
+    },
+    {
+      "producto": "Baraja de combate",
+      "pvp": 20,
+      "patron": "baraja|battle deck|deck set|premium deck"
+    },
+    {
+      "producto": "Colección con figura",
+      "pvp": 60,
+      "patron": "figur"
+    },
+    {
+      "producto": "Colección ex (Sylveon/Greninja)",
+      "pvp": 30,
+      "patron": "ex box|sylveon|greninja"
+    },
+    {
+      "producto": "Caja de sobres (asiática)",
+      "pvp": 100,
+      "patron": "\\bcaja\\b.*(m6a|chino|japones|coreano|30c)|booster box"
+    }
+  ]
+}
