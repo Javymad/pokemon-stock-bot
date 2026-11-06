@@ -213,7 +213,7 @@ def vigilar_fallos(estado, tienda, error, cfg, enviar):
 def ejecutar(cfg, estado, enviar, lectores=None):
     lectores = lectores or {"shopify": leer_shopify, "ldjson": leer_ldjson, "fichas": leer_fichas}
     elegibles, tiendas_ok = {}, set()
-    for i, tienda in enumerate(cfg["tiendas"]):
+    for i, tienda in enumerate(t for t in cfg["tiendas"] if not t.get("pausada")):
         if i:
             time.sleep(cfg["pausa_segundos"])
         nombre, error = tienda["nombre"], None

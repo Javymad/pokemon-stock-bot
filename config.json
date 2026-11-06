@@ -50,7 +50,9 @@
       "patron_nombre": "data-name=\"([^\"]+)\"",
       "patron_precio": "itemprop=\"price\" content=\"([0-9.]+)\"",
       "patron_stock": "'dimension6': '(\\w+)'",
-      "valor_en_stock": "inStock"
+      "valor_en_stock": "inStock",
+      "pausada": true,
+      "motivo": "Responde 451 a los servidores de GitHub"
     }
   ],
   "excluir": [
