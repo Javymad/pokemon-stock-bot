@@ -22,7 +22,7 @@ class Filtro(unittest.TestCase):
             self.assertFalse(bot.es_coleccion(t), t)
 
     def test_pvp(self):
-        self.assertEqual(len(bot.filtrar([item(precio=69.0)], CFG)), 1)
+        self.assertEqual(len(bot.filtrar([item(precio=68.9)], CFG)), 1)
         self.assertEqual(len(bot.filtrar([item(precio=69.95)], CFG)), 0)  # reventa
         self.assertEqual(len(bot.filtrar([item(disp=False)], CFG)), 0)
 
@@ -88,6 +88,27 @@ class Lectores(unittest.TestCase):
         pag = f'<script type="application/ld+json">{json.dumps(ld)}</script>'
         items = bot.leer_ldjson({"nombre": "P", "url": "https://p"}, CFG, lambda u: pag)
         self.assertEqual((len(items), items[0]["disponible"]), (1, False))
+
+
+class Fichas(unittest.TestCase):
+    TIENDA = next(t for t in CFG["tiendas"] if t.get("tipo") == "fichas")
+    PAGINA = """data-name="Pokémon 30º Aniversario - Caja de Entrenador Élite (Español)"
+        <meta itemprop="price" content="64.99"/> 'dimension6': '{}',"""
+
+    def leer(self, pagina):
+        tienda = {**self.TIENDA, "urls": ["https://x/p"]}
+        return bot.leer_fichas(tienda, CFG, lambda u: pagina)
+
+    def test_stock(self):
+        self.assertFalse(self.leer(self.PAGINA.format("outOfStock"))[0]["disponible"])
+        it = self.leer(self.PAGINA.format("inStock"))[0]
+        self.assertTrue(it["disponible"])
+        self.assertEqual(it["precio"], 64.99)
+        self.assertEqual(len(bot.filtrar([it], CFG)), 1)
+
+    def test_web_cambiada_es_fallo(self):
+        with self.assertRaises(ValueError):
+            self.leer("<html></html>")
 
 
 class Fallos(unittest.TestCase):

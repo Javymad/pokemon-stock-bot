@@ -120,6 +120,30 @@ def leer_ldjson(tienda, cfg, get=http_get):
     return items
 
 
+def leer_fichas(tienda, cfg, get=http_get):
+    """Lee fichas directas de producto con los patrones de precio y stock definidos en la tienda."""
+    items = []
+    for i, url in enumerate(tienda["urls"]):
+        if i:
+            time.sleep(cfg["pausa_segundos"])
+        pagina = get(url)
+        nombre = re.search(tienda["patron_nombre"], pagina)
+        precio = re.search(tienda["patron_precio"], pagina)
+        stock = re.search(tienda["patron_stock"], pagina)
+        if not (nombre and precio and stock):  # si cambia la web, debe contar como fallo y no como agotado
+            raise ValueError(f"ficha no reconocida: {url}")
+        items.append({
+            "id": f"{tienda['nombre']}|{url}",
+            "tienda": tienda["nombre"],
+            "titulo": html.unescape(nombre.group(1)),
+            "precio": float(precio.group(1)),
+            "disponible": stock.group(1) == tienda["valor_en_stock"],
+            "stock_seguro": True,
+            "url": url,
+        })
+    return items
+
+
 def filtrar(items, cfg):
     """Se queda con lo disponible, conocido y a PVP (con margen)."""
     salida = {}
@@ -187,7 +211,7 @@ def vigilar_fallos(estado, tienda, error, cfg, enviar):
 
 
 def ejecutar(cfg, estado, enviar, lectores=None):
-    lectores = lectores or {"shopify": leer_shopify, "ldjson": leer_ldjson}
+    lectores = lectores or {"shopify": leer_shopify, "ldjson": leer_ldjson, "fichas": leer_fichas}
     elegibles, tiendas_ok = {}, set()
     for i, tienda in enumerate(cfg["tiendas"]):
         if i:

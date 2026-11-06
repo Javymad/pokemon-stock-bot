@@ -1,5 +1,5 @@
 {
-  "_nota_pvp": "No hay PVP oficial publicado para España: 'pvp' son ESTIMACIONES editables. Tope de aviso = pvp * (1 + margen). Sirve para cualquier idioma. El orden importa: gana la primera regla que encaje.",
+  "_nota_pvp": "PVP de referencia en España (nov 2026). Reales de GAME/Carrefour: ETB, minilata, lata ex, colección ex y álbum. El resto son estimaciones editables. Tope de aviso = pvp * (1 + margen). Gana la primera regla que encaje.",
   "margen": 0.15,
   "fallos_para_avisar": 12,
   "pausa_segundos": 1.5,
@@ -27,6 +27,30 @@
     {
       "nombre": "Tier Kards",
       "base": "https://tierkards.com"
+    },
+    {
+      "nombre": "Card-Binder",
+      "base": "https://card-binder.com"
+    },
+    {
+      "nombre": "The Sole Hunters",
+      "base": "https://thesolehunters.com"
+    },
+    {
+      "nombre": "Toy Planet",
+      "base": "https://www.toyplanet.com"
+    },
+    {
+      "nombre": "Toys R Us",
+      "tipo": "fichas",
+      "urls": [
+        "https://www.toysrus.es/Pok%C3%A9mon-30%C2%BA-Aniversario-Caja-de-Entrenador-%C3%89lite-(Espa%C3%B1ol)/p/K1108947",
+        "https://www.toysrus.es/Pok%C3%A9mon-30%C2%BA-Aniversario-Mini-Lata-(Espa%C3%B1ol)-Varios-modelos/p/K1108961"
+      ],
+      "patron_nombre": "data-name=\"([^\"]+)\"",
+      "patron_precio": "itemprop=\"price\" content=\"([0-9.]+)\"",
+      "patron_stock": "'dimension6': '(\\w+)'",
+      "valor_en_stock": "inStock"
     }
   ],
   "excluir": [
@@ -48,7 +72,7 @@
     },
     {
       "producto": "Caja Entrenador Élite (ETB)",
-      "pvp": 60,
+      "pvp": 59.99,
       "patron": "\\betb\\b|entrenador (de )?elite|elite trainer"
     },
     {
@@ -63,7 +87,7 @@
     },
     {
       "producto": "Colección con álbum",
-      "pvp": 50,
+      "pvp": 59.99,
       "patron": "binder|album"
     },
     {
@@ -78,12 +102,12 @@
     },
     {
       "producto": "Minilata",
-      "pvp": 10,
+      "pvp": 16.99,
       "patron": "mini ?lata|mini ?tin"
     },
     {
       "producto": "Lata ex",
-      "pvp": 25,
+      "pvp": 34.99,
       "patron": "\\blata\\b|\\btin\\b"
     },
     {
@@ -108,7 +132,7 @@
     },
     {
       "producto": "Colección ex (Sylveon/Greninja)",
-      "pvp": 30,
+      "pvp": 34.99,
       "patron": "ex box|sylveon|greninja"
     },
     {

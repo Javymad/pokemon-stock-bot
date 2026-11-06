@@ -17,9 +17,10 @@ repite, y si se agota y vuelve, avisa otra vez.
 
 Todo está en `config.json`:
 
-- `reglas`: PVP por producto. **Son estimaciones**, no hay PVP oficial publicado para España. Corrígelos si conoces el real.
+- `reglas`: PVP por producto. ETB, minilata, lata ex, colección ex y álbum salen de precios reales de GAME y Carrefour; el resto son estimaciones. Corrígelos si conoces el real.
 - `margen`: 0.15 = se avisa hasta PVP + 15 %.
 - `tiendas`: tiendas vigiladas. `excluir`: palabras que descartan un producto.
+- Fichas directas: en Toys R Us se vigila cada enlace de `urls`; añade ahí más fichas de producto.
 
 ## Comprobar
 
