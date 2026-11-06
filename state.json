@@ -1,5 +1,11 @@
 {
- "activos": {},
+ "activos": {
+  "Card-Binder|65862436389213": 24.95,
+  "Card-Binder|65862495502685": 24.95,
+  "Card-Binder|65926020301149": 24.95,
+  "Card-Binder|65926073516381": 24.95,
+  "Cardzone|58680297390424": 29.95
+ },
  "canales": {
   "pokestock_es": 2908,
   "stocktcges": 141
