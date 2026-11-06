@@ -29,6 +29,12 @@ Todo está en `config.json`:
 
 Si una tienda no se puede leer durante 12 pasadas seguidas (unas 2 horas), el bot avisa una vez por Telegram.
 
+## Canales de Telegram
+
+Las grandes cadenas que bloquean bots se cubren leyendo la vista pública de los canales de `canales`
+(`@stocktcges`, `@pokestock_es`). Si el mensaje trae tienda y precio se aplica el filtro de PVP; si no,
+se reenvía marcado como "sin comprobar". La cobertura depende de esos canales, y sus enlaces pueden ser de afiliado.
+
 ## Sin cubrir
 
 Carrefour, Fnac, GAME y Xtralife rechazan consultas automáticas (403). lamafiadelsobre.com también.

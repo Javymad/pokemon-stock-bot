@@ -111,6 +111,56 @@ class Fichas(unittest.TestCase):
             self.leer("<html></html>")
 
 
+class Canales(unittest.TestCase):
+    def test_lee_vista_publica(self):
+        pagina = ('<div class="tgme_widget_message" data-post="canal/7"><div class="tgme_widget_message_text x">'
+                  'Lata 30 Aniversario<br/>en <a href="https://c">Carrefour</a> &amp; más</div></div>')
+        self.assertEqual(bot.leer_canal("canal", lambda u: pagina), [(7, "Lata 30 Aniversario\nen Carrefour & más")])
+
+    def test_arranca_sin_inundar_y_filtra(self):
+        e, enviados = {}, []
+        def enviar(t):
+            enviados.append(t)
+            return True
+        bot.procesar_canal(e, "c", [(1, "ETB 30 Aniversario")], enviar, CFG)
+        self.assertEqual(enviados, [])  # los antiguos no se reenvían
+        posts = [(1, "ETB 30 Aniversario"), (2, "Dominio Delta"), (3, "Lata 30 Aniversario")]
+        bot.procesar_canal(e, "c", posts, enviar, CFG)
+        self.assertEqual(len(enviados), 1)
+        self.assertEqual(e["canales"]["c"], 3)
+
+    def test_envio_fallido_se_reintenta(self):
+        e = {"canales": {"c": 1}}
+        bot.procesar_canal(e, "c", [(2, "Lata 30 Aniversario")], lambda t: False, CFG)
+        self.assertEqual(e["canales"]["c"], 1)
+
+    def aviso(self, serie, tipo, tienda, precio, titulo):
+        return f"PokeTracker · 1 novedad(es)\n\n 🟢 RESTOCK · {serie} · {tipo} [es]\n{tienda} — {precio}EUR\n {titulo}"
+
+    def test_aviso_con_precio_aplica_pvp(self):
+        ok = self.aviso("30th Celebration", "ETB", "El Corte Inglés", "59.99", "Juego de cartas Elite Trainer Box")
+        caro = self.aviso("30th Celebration", "ETB", "Otra", "120.00", "Elite Trainer Box")
+        otra_serie = self.aviso("Ascended Heroes", "ETB", "El Corte Inglés", "59.99", "Elite Trainer Box")
+        textos = bot.textos_canal("c", 1, ok, CFG)
+        self.assertEqual(len(textos), 1)
+        self.assertIn("El Corte Inglés", textos[0])
+        self.assertIn("tope 68.99", textos[0])
+        self.assertEqual(bot.textos_canal("c", 1, caro, CFG), [])
+        self.assertEqual(bot.textos_canal("c", 1, otra_serie, CFG), [])
+
+    def test_varias_novedades_en_un_mensaje(self):
+        uno = self.aviso("30th Celebration", "Mini Tin", "Carrefour", "16.99", "Mini Lata")
+        dos = self.aviso("30th Celebration", "ETB", "Fnac", "59.99", "ETB")
+        self.assertEqual(len(bot.textos_canal("c", 1, uno + " \n\n" + dos, CFG)), 2)
+
+    def test_canal_caido_cuenta_como_fallo(self):
+        e = {}
+        def falla(c):
+            raise OSError("403")
+        bot.ejecutar_canales({**CFG, "canales": ["c"]}, e, lambda t: True, falla)
+        self.assertEqual(e["fallos"], {"@c": 1})
+
+
 class Fallos(unittest.TestCase):
     def test_avisa_una_vez_y_se_recupera(self):
         e, envios = {}, []

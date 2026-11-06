@@ -229,7 +229,80 @@ def ejecutar(cfg, estado, enviar, lectores=None):
             tiendas_ok.add(nombre)
             elegibles.update(filtrar(items, cfg))
     procesar(estado, elegibles, tiendas_ok, enviar)
+    ejecutar_canales(cfg, estado, enviar)
     return elegibles
+
+
+def leer_canal(canal, get=http_get):
+    """Devuelve [(id, texto)] de la vista pública de un canal de Telegram, del más antiguo al más nuevo."""
+    pagina = get(f"https://t.me/s/{canal}")
+    posts = []
+    for bloque in pagina.split('data-post="')[1:]:
+        ident = re.match(rf"{re.escape(canal)}/(\d+)\"", bloque, re.I)
+        texto = re.search(r'tgme_widget_message_text[^>]*>(.*?)</div>', bloque, re.S)
+        if ident and texto:
+            limpio = re.sub(r"<br\s*/?>", "\n", texto.group(1))
+            limpio = html.unescape(re.sub(r"<[^>]+>", " ", limpio))
+            posts.append((int(ident.group(1)), re.sub(r"[ \t]+", " ", limpio).strip()))
+    if "tgme_channel_info" not in pagina and "tgme_widget_message" not in pagina:
+        raise ValueError("canal no reconocido")
+    return sorted(posts)
+
+
+RE_AVISO = re.compile(
+    r"(RESTOCK|NEW)\s*·\s*(?P<serie>[^·\n]+?)\s*·\s*(?P<tipo>[^\[\n]+?)\s*\[(?P<idioma>\w+)\]\s*\n"
+    r"\s*(?P<tienda>[^\n]+?)\s*—\s*(?P<precio>[\d.,]+)\s*EUR\s*\n\s*(?P<titulo>[^\n]+)"
+)
+
+
+def textos_canal(canal, ident, texto, cfg):
+    """Mensajes a reenviar: con formato tienda-precio aplica colección y PVP; si no, filtra por el texto."""
+    enlace = f"https://t.me/{canal}/{ident}"
+    cabecera = f"📣 <b>Aviso en @{html.escape(canal)}</b>"
+    avisos = list(RE_AVISO.finditer(texto))
+    if not avisos:
+        return [f"{cabecera} (precio y stock sin comprobar)\n{html.escape(texto[:900])}\n{enlace}"] if es_coleccion(texto) else []
+    salida = []
+    for a in avisos:
+        if not es_coleccion(f"{a['serie']} {a['titulo']}"):
+            continue
+        precio = float(a["precio"].replace(",", "."))
+        clase = clasificar(f"{a['tipo']} {a['titulo']}", cfg)
+        if clase and precio > clase[1]:
+            continue
+        tope = f"tope {clase[1]:.2f} €" if clase else "sin PVP en la tabla"
+        salida.append(f"{cabecera}\n{html.escape(a['titulo'])} [{html.escape(a['idioma'])}]\n"
+                      f"💶 {precio:.2f} € ({tope})\n🏬 {html.escape(a['tienda'])}\n{enlace}")
+    return salida
+
+
+def procesar_canal(estado, canal, posts, enviar, cfg):
+    """Reenvía los mensajes nuevos que hablen de la colección. La primera vez solo marca el punto de partida."""
+    vistos = estado.setdefault("canales", {})
+    ultimo = vistos.get(canal)
+    if ultimo is None:
+        if posts:
+            vistos[canal] = posts[-1][0]
+        return
+    for ident, texto in posts:
+        if ident <= ultimo:
+            continue
+        if not all(enviar(t) for t in textos_canal(canal, ident, texto, cfg)):
+            return  # se reintenta en la siguiente pasada
+        vistos[canal] = ident
+
+
+def ejecutar_canales(cfg, estado, enviar, lector=leer_canal):
+    for canal in cfg.get("canales", []):
+        error = None
+        try:
+            posts = lector(canal)
+            print(f"@{canal}: {len(posts)} mensajes")
+            procesar_canal(estado, canal, posts, enviar, cfg)
+        except Exception as e:  # un canal caído no debe parar el resto
+            error = f"{type(e).__name__}: {e}"[:120]
+            print(f"@{canal}: [FALLO: {error}]")
+        vigilar_fallos(estado, f"@{canal}", error, cfg, enviar)
 
 
 def mostrar_chat_id(token):

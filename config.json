@@ -140,5 +140,9 @@
       "pvp": 100,
       "patron": "\\bcaja\\b.*(m6a|chino|japones|coreano|30c)|booster box"
     }
+  ],
+  "canales": [
+    "pokestock_es",
+    "stocktcges"
   ]
 }
