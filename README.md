@@ -10,7 +10,7 @@ repite, y si se agota y vuelve, avisa otra vez.
 2. Crea un repositorio **público** en tu GitHub personal (minutos de Actions ilimitados) y sube esta carpeta.
    El token nunca va en el código.
 3. En el repositorio: Settings > Secrets and variables > Actions, crea `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID`.
-   El chat id sale con `python bot.py --chat-id` (con `TELEGRAM_TOKEN` en el entorno).
+   El chat id te lo dice @userinfobot en Telegram (campo Id).
 4. En Actions, lanza "Vigilar stock" a mano. La primera pasada avisa de todo lo que ya esté disponible.
 
 ## Ajustes
