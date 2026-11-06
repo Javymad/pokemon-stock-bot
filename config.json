@@ -27,18 +27,6 @@
     {
       "nombre": "Tier Kards",
       "base": "https://tierkards.com"
-    },
-    {
-      "nombre": "PcComponentes",
-      "tipo": "ldjson",
-      "url": "https://www.pccomponentes.com/buscar/?query=pokemon+tcg+30+aniversario",
-      "puede_vacio": true
-    },
-    {
-      "nombre": "MediaMarkt",
-      "tipo": "ldjson",
-      "url": "https://www.mediamarkt.es/es/search.html?query=pokemon+tcg+30+aniversario",
-      "puede_vacio": true
     }
   ],
   "excluir": [

@@ -31,5 +31,6 @@ Si una tienda no se puede leer durante 12 pasadas seguidas (unas 2 horas), el bo
 ## Sin cubrir
 
 Carrefour, Fnac, GAME y Xtralife rechazan consultas automáticas (403). lamafiadelsobre.com también.
+PcComponentes y MediaMarkt responden desde un PC normal, pero rechazan a los servidores de GitHub (403).
 El Corte Inglés y Toys R Us las prohíben en `robots.txt`, y Amazon en sus condiciones de uso.
 No se esquivan esos bloqueos: para esas tiendas usa sus avisos propios ("Avísame") o un servicio de alertas.
