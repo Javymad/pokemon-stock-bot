@@ -146,5 +146,6 @@
   "canales": [
     "pokestock_es",
     "stocktcges"
-  ]
+  ],
+  "factor_chino": 0.5
 }

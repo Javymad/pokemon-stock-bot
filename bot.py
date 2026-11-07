@@ -36,13 +36,16 @@ def es_coleccion(titulo):
 
 
 def clasificar(titulo, cfg):
-    """Devuelve (regla, tope) o None si no es un producto sellado con PVP en la tabla."""
+    """Devuelve (regla, tope) o None si no es un producto sellado con PVP en la tabla.
+
+    En chino el tope es una fracción del PVP (por defecto el 50 %): solo interesa si sale muy barato."""
     t = normalizar(titulo)
     if any(x in t for x in cfg["excluir"]):
         return None
+    factor = cfg.get("factor_chino", 0.5) if es_chino(titulo) else 1 + cfg["margen"]
     for regla in cfg["reglas"]:
         if re.search(regla["patron"], t):
-            return regla, round(regla["pvp"] * (1 + cfg["margen"]), 2)
+            return regla, round(regla["pvp"] * factor, 2)
     return None
 
 
@@ -159,8 +162,6 @@ def filtrar(items, cfg):
         c = clasificar(it["titulo"], cfg)
         if not it["disponible"] or c is None or it["precio"] > c[1]:
             continue
-        if es_chino(it["titulo"]) and not it.get("antes"):  # en chino solo si hay rebaja
-            continue
         regla, tope = c
         salida[it["id"]] = {**it, "producto": regla["producto"], "tope": tope,
                             "reserva": bool(RE_RESERVA.search(normalizar(it["titulo"])))}
@@ -273,16 +274,18 @@ def textos_canal(canal, ident, texto, cfg):
     cabecera = f"📣 <b>Aviso en @{html.escape(canal)}</b>"
     avisos = list(RE_AVISO.finditer(texto))
     if not avisos:
-        if not es_coleccion(texto) or es_chino(texto):  # los canales no indican si hay rebaja
+        if not es_coleccion(texto) or es_chino(texto):  # sin precio no se puede aplicar el 50 % del chino
             return []
         return [f"{cabecera} (precio y stock sin comprobar)\n{html.escape(texto[:900])}\n{enlace}"]
     salida = []
     for a in avisos:
-        if not es_coleccion(f"{a['serie']} {a['titulo']}") or es_chino(f"{a['idioma']} {a['titulo']}"):
+        if not es_coleccion(f"{a['serie']} {a['titulo']}"):
             continue
         precio = float(a["precio"].replace(",", "."))
-        clase = clasificar(f"{a['tipo']} {a['titulo']}", cfg)
+        clase = clasificar(f"{a['tipo']} {a['titulo']} {a['idioma']}", cfg)
         if clase and precio > clase[1]:
+            continue
+        if not clase and es_chino(f"{a['idioma']} {a['titulo']}"):
             continue
         tope = f"tope {clase[1]:.2f} €" if clase else "sin PVP en la tabla"
         salida.append(f"{cabecera}\n{html.escape(a['titulo'])} [{html.escape(a['idioma'])}]\n"

@@ -19,7 +19,7 @@ Todo está en `config.json`:
 
 - `reglas`: PVP por producto. ETB, minilata, lata ex, colección ex y álbum salen de precios reales de GAME y Carrefour; el resto son estimaciones. Corrígelos si conoces el real.
 - `margen`: 0.15 = se avisa hasta PVP + 15 %.
-- Producto en chino: solo avisa si la tienda muestra precio rebajado. Los canales no lo indican, así que sus avisos en chino se descartan.
+- Producto en chino: solo avisa si cuesta como mucho el 50 % del PVP (`factor_chino`). Los avisos de canal en chino sin precio se descartan.
 - `tiendas`: tiendas vigiladas. `excluir`: palabras que descartan un producto.
 - Fichas directas: el lector de `urls` funciona, pero Toys R Us está pausada porque responde 451 a GitHub (`pausada: true`).
 
